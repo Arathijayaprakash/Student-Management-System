@@ -9,6 +9,11 @@ class Router
     {
         $this->routes['GET'][$path] = $callback;
     }
+    public function post(string $path, $callback)
+    {
+        $this->routes['POST'][$path] = $callback;
+    }
+
     public function resolve()
     {
         $method = $_SERVER['REQUEST_METHOD'];
