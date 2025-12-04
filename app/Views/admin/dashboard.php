@@ -1,15 +1,5 @@
-<!doctype html>
-<html>
+<p class="welcome">
+    Welcome <?= htmlspecialchars($_SESSION['user']['username'] ?? 'Admin') ?>
+</p>
 
-<head>
-    <meta charset="utf-8">
-    <title>Admin Dashboard</title>
-</head>
-
-<body>
-    <h1>Admin Dashboard</h1>
-    <p>Welcome <?= htmlspecialchars($_SESSION['user']['username']) ?></p>
-    <p><a href="/logout">Logout</a></p>
-</body>
-
-</html>
+<p>Use the sidebar to navigate through the dashboard.</p>

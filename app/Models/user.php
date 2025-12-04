@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Config\Database;
@@ -30,16 +31,19 @@ class User
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function create(string $username, string $password, string $role = 'student'): bool
+    public function create(array $data)
     {
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->db->prepare("
-            INSERT INTO users (username, password, role) VALUES (:username, :password, :role)
-        ");
-        return $stmt->execute([
-            ':username' => $username,
-            ':password' => $hashed,
-            ':role' => $role
+        $sql = "INSERT INTO users (name, email, password, role) 
+                VALUES (:name, :email, :password, :role)";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ":name"     => $data["name"],
+            ":email"    => $data["email"],
+            ":password" => $data["password"],
+            ":role"     => $data["role"]
         ]);
+
+        return $this->db->lastInsertId(); // return user_id
     }
 }
