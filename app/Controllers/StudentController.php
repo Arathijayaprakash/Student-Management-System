@@ -11,17 +11,36 @@ class StudentController extends Controller
     public function index()
     {
         $studentModel = new Student();
-        $students = $studentModel->getAll();
 
+        //pagination variables
+        $limit = 4; // Students per page
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $limit;
+
+        //search filter
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+        // Fetch total students based on search
+        $totalStudents = $studentModel->countFiltered($search);
+
+        // Calculate total pages
+        $totalPages = ceil($totalStudents / $limit);
+
+        // Fetch paginated and filtered students
+        $students = $studentModel->getFilteredPaginated($search, $limit, $offset);
         return $this->view(
             "admin/student/studentList",
             [
                 "title" => "Student List",
-                "students" => $students
+                "students" => $students,
+                "page" => $page,
+                "totalPages" => $totalPages,
+                "search" => $search,
             ],
             layout: "admin"
         );
     }
+
 
     public function createPage()
     {
@@ -109,5 +128,71 @@ class StudentController extends Controller
             ],
             layout: "admin"
         );
+    }
+
+    // SHOW EDIT PAGE
+    public function editPage()
+    {
+        $id = $_GET['id'];
+        $student = (new Student())->findById($id);
+        return $this->view(
+            "admin/student/edit",
+            [
+                "title" => "Edit Student",
+                "student" => $student
+            ],
+            layout: "admin"
+        );
+    }
+
+    // UPDATE STUDENT
+    public function update()
+    {
+        $studentModel = new Student();
+        $userModel = new User();
+
+        $id = $_POST['id'];
+        $student = $studentModel->findById($id);
+
+        // Update user table
+        $userModel->update($student['user_id'], [
+            "name" => $_POST['name'],
+            "email" => $_POST['email']
+        ]);
+
+        // Upload new photo if updated
+        $photoName = $student['photo'];
+        if (!empty($_FILES['photo']['name'])) {
+            $photoName = "stu_" . uniqid() . ".png";
+            move_uploaded_file($_FILES['photo']['tmp_name'], __DIR__ . "/../../public/uploads/students/" . $photoName);
+        }
+
+        // Update student table
+        $studentModel->update($id, [
+            "course" => $_POST['course'],
+            "photo"  => $photoName
+        ]);
+
+        header("Location: /student?updated=1");
+        exit;
+        exit;
+    }
+
+    public function delete()
+    {
+        $id = $_GET['id'];
+
+        $studentModel = new Student();
+        $student = $studentModel->findById($id);
+
+        if ($student) {
+            $userId = $student['user_id'];
+
+            // delete user → student auto deleted because of ON DELETE CASCADE
+            (new User())->delete($userId);
+        }
+
+        header("Location: /student?deleted=1");
+        exit;
     }
 }

@@ -46,4 +46,19 @@ class User
 
         return $this->db->lastInsertId(); // return user_id
     }
+    public function update($id, array $data)
+    {
+        $sql = "UPDATE users SET name = :name, email = :email WHERE id = :id";
+        $data['id'] = $id;
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($data);
+    }
+
+    public function delete($id)
+    {
+        $sql = "DELETE FROM users WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$id]);
+    }
 }

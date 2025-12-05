@@ -62,8 +62,11 @@
         <h1>Admin Dashboard</h1>
     </header>
     <div class="sidebar">
+        <a href="/admin/dashboard">Home</a>
         <a href="/student/add">Add Student</a>
         <a href="/student">View Students</a>
+        <a href="/courses/add">Add Courses</a>
+        <a href="/courses/view">View Courses</a>
         <a href="/logout">Logout</a>
     </div>
     <div class="main-content">

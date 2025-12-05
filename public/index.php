@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/config/bootstrap.php';
+
 use App\Core\Router;
 use App\Controllers\AuthController;
 use App\Controllers\StudentController;
@@ -38,7 +39,24 @@ $router->post('/student/add', function () {
     AuthMiddleware::checkRole(['admin']);
     (new StudentController())->store();
 });
+// Edit Student
+$router->get('/student/edit', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = $_GET['id'] ?? null;
+    (new StudentController())->editPage($id);
+});
+$router->post('/student/update', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = $_POST['id'] ?? null;
+    (new StudentController())->update($id);
+});
 
+// Delete Student
+$router->get('/student/delete', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = $_GET['id'] ?? null;
+    (new StudentController())->delete($id);
+});
 /*
 |--------------------------------------------------------------------------
 | STUDENT ROUTES (Protected)
