@@ -5,9 +5,17 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\Course;
+use App\Services\PaginationService;
 
 class StudentController extends Controller
 {
+    private $paginationService;
+
+    public function __construct()
+    {
+        $this->paginationService = new PaginationService();
+    }
     public function index()
     {
         $studentModel = new Student();
@@ -15,27 +23,26 @@ class StudentController extends Controller
         //pagination variables
         $limit = 4; // Students per page
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-        $offset = ($page - 1) * $limit;
 
         //search filter
         $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-        // Fetch total students based on search
-        $totalStudents = $studentModel->countFiltered($search);
-
-        // Calculate total pages
-        $totalPages = ceil($totalStudents / $limit);
-
-        // Fetch paginated and filtered students
-        $students = $studentModel->getFilteredPaginated($search, $limit, $offset);
+        // Use PaginationService to get paginated students
+        $paginationData = $this->paginationService->paginate(
+            fn($search, $limit, $offset) => $studentModel->getFilteredPaginated($search, $limit, $offset),
+            fn($search) => $studentModel->countFiltered($search),
+            $limit,
+            $page,
+            $search
+        );
         return $this->view(
             "admin/student/studentList",
             [
                 "title" => "Student List",
-                "students" => $students,
-                "page" => $page,
-                "totalPages" => $totalPages,
-                "search" => $search,
+                "students" => $paginationData['items'],
+                "page" => $paginationData['page'],
+                "totalPages" => $paginationData['totalPages'],
+                "search" => $paginationData['search'],
             ],
             layout: "admin"
         );
@@ -44,9 +51,14 @@ class StudentController extends Controller
 
     public function createPage()
     {
+        $courses = (new Course())->getAll();
+
         return $this->view(
             "admin/student/add",
-            ["title" => "Add Student"],
+            [
+                "title" => "Add Student",
+                "courses" => $courses
+            ],
             layout: "admin"
         );
     }
@@ -108,23 +120,39 @@ class StudentController extends Controller
             move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath);
         }
 
-
         // 2️⃣ Insert into students table
         $studentModel->create([
             "user_id" => $userId,
-            "course"  => $_POST["course"],
+            "course_id"  => $_POST["course_id"],
             "photo"   => $photoName
 
         ]);
-        $students = $studentModel->getAll();
 
+        //pagination variables
+        $limit = 4; // Students per page
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+        //search filter
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+        // Use PaginationService to get paginated students
+        $paginationData = $this->paginationService->paginate(
+            fn($search, $limit, $offset) => $studentModel->getFilteredPaginated($search, $limit, $offset),
+            fn($search) => $studentModel->countFiltered($search),
+            $limit,
+            $page,
+            $search
+        );
         return $this->view(
             "admin/student/studentList",
             [
-                "title"    => "Student List",
-                "students" => $students,
+                "title" => "Student List",
+                "students" => $paginationData['items'],
+                "page" => $paginationData['page'],
+                "totalPages" => $paginationData['totalPages'],
+                "search" => $paginationData['search'],
                 "success"  => "Student created successfully!",
-                "password" => $plainPassword
+                "password" => $plainPassword,
             ],
             layout: "admin"
         );
@@ -135,11 +163,14 @@ class StudentController extends Controller
     {
         $id = $_GET['id'];
         $student = (new Student())->findById($id);
+        $courses = (new Course())->getAll();
+
         return $this->view(
             "admin/student/edit",
             [
                 "title" => "Edit Student",
-                "student" => $student
+                "student" => $student,
+                "courses" => $courses,
             ],
             layout: "admin"
         );
@@ -169,7 +200,7 @@ class StudentController extends Controller
 
         // Update student table
         $studentModel->update($id, [
-            "course" => $_POST['course'],
+            "course_id" => $_POST['course_id'],
             "photo"  => $photoName
         ]);
 

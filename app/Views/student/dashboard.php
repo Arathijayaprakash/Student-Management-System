@@ -1,15 +1,14 @@
-<!doctype html>
-<html>
+<?php
+$title = "Student Dashboard"; // Set the page title
+?>
 
-<head>
-    <meta charset="utf-8">
-    <title>Student Dashboard</title>
-</head>
+<div class="welcome">
+    <h1>Welcome, <?= htmlspecialchars($_SESSION['user']['username']) ?>!</h1>
+    <p>Here you can manage your profile, view your courses, attendance, and results.</p>
+</div>
 
-<body>
-    <h1>Student Dashboard</h1>
-    <p>Welcome <?= htmlspecialchars($_SESSION['user']['username']) ?></p>
-    <p><a href="/logout">Logout</a></p>
-</body>
-
-</html>
+<div class="card-box">
+    <h2>Your Courses</h2>
+    <p>Check your enrolled course and progress.</p>
+    <a href="/student/course" style="color: #007bff; text-decoration: underline;">View Courses</a>
+</div>

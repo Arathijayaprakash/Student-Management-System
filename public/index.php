@@ -6,6 +6,8 @@ use App\Controllers\AuthController;
 use App\Controllers\StudentController;
 use App\Controllers\AdminController;
 use App\Middleware\AuthMiddleware;
+use App\Controllers\CourseController;
+use App\Controllers\StudentProfileController;
 
 $router = new Router();
 
@@ -57,6 +59,23 @@ $router->get('/student/delete', function () {
     $id = $_GET['id'] ?? null;
     (new StudentController())->delete($id);
 });
+
+$router->get('/course/list', function () {
+    AuthMiddleware::checkRole(['admin']);
+    (new CourseController())->index();
+});
+$router->get('/courses', [CourseController::class, 'index']);
+
+$router->get('/course/add', function () {
+    AuthMiddleware::checkRole(['admin']);
+    (new CourseController())->createPage();
+});
+
+$router->post('/course/add', function () {
+    AuthMiddleware::checkRole(['admin']);
+    (new CourseController())->store();
+});
+
 /*
 |--------------------------------------------------------------------------
 | STUDENT ROUTES (Protected)
@@ -64,7 +83,33 @@ $router->get('/student/delete', function () {
 */
 $router->get('/student/dashboard', function () {
     AuthMiddleware::checkRole(['student']);
-    include __DIR__ . '/../app/Views/student/dashboard.php';
+    (new StudentProfileController())->dashboard();
+});
+// View Student Profile
+$router->get('/student/profile', function () {
+    AuthMiddleware::checkRole(['student']);
+    (new StudentProfileController())->viewProfile();
+});
+//update profile
+$router->post('/profile/update', function () {
+    AuthMiddleware::checkRole(['student']);
+    (new StudentProfileController())->updateProfile();
+});
+// View Course
+$router->get('/student/course', function () {
+    AuthMiddleware::checkRole(['student']);
+    (new StudentProfileController())->courses();
+});
+// Change Password - GET (Display the form)
+$router->get('/student/change_password', function () {
+    AuthMiddleware::checkRole(['student']);
+    (new StudentProfileController())->changePassword();
+});
+
+// Change Password - POST (Handle form submission)
+$router->post('/student/change_password', function () {
+    AuthMiddleware::checkRole(['student']);
+    (new StudentProfileController())->changePassword();
 });
 
 /*

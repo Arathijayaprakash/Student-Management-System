@@ -2,19 +2,10 @@
 
 namespace App\Models;
 
-use App\Config\Database;
 use PDO;
-use PDOException;
 
-class User
+class User extends Model
 {
-    private PDO $db;
-
-    public function __construct()
-    {
-        $this->db = Database::getConnection();
-    }
-
     public function findByUsername(string $username): ?array
     {
         $sql = "SELECT * FROM users WHERE email = :username LIMIT 1";
@@ -60,5 +51,15 @@ class User
         $sql = "DELETE FROM users WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
+    }
+    public function updatePassword(int $userId, string $hashedPassword): bool
+    {
+        $sql = "UPDATE users SET password = :password WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            ':password' => $hashedPassword,
+            ':id' => $userId
+        ]);
     }
 }

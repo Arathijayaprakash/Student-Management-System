@@ -30,12 +30,22 @@
 
     <div style="margin-bottom:15px;">
         <label style="display:block; font-weight:bold; margin-bottom:5px;">Course:</label>
-        <input type="text" name="course" style="
+        <select name="course_id" required style="
             width:100%;
             padding:10px;
             border:1px solid #ccc;
             border-radius:5px;
+            background:white;
+            font-size:14px;
         ">
+            <option value="">Select Course</option>
+            <?php foreach ($courses as $course): ?>
+                <option value="<?= $course['id'] ?>"
+                    <?= isset($student) && $student['course_id'] == $course['id'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($course['course_name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
     </div>
 
     <div style="margin-bottom:20px;">
