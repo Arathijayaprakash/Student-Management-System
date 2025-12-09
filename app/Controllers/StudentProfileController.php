@@ -6,6 +6,11 @@ use App\Core\Controller;
 use App\Models\Student;
 use App\Models\User;
 
+/**
+ * Student Controller
+ * 
+ * Handles student-related functionalities, including listing, creating, editing, updating, and deleting students.
+ */
 class StudentProfileController extends Controller
 {
     public function dashboard()

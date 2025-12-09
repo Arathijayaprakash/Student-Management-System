@@ -4,7 +4,7 @@ $title = "Student Dashboard"; // Set the page title
 
 <div class="welcome">
     <h1>Welcome, <?= htmlspecialchars($_SESSION['user']['username']) ?>!</h1>
-    <p>Here you can manage your profile, view your courses, attendance, and results.</p>
+    <p>Here you can manage your profile.</p>
 </div>
 
 <div class="card-box">

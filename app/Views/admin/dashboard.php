@@ -17,7 +17,7 @@
     ">
         <h3 style="margin: 0; font-size: 24px;">Students</h3>
         <p style="margin: 10px 0; font-size: 36px; font-weight: bold;">
-            <?=htmlspecialchars($studentCount); ?>
+            <?= htmlspecialchars($studentCount); ?>
         </p>
     </div>
 
@@ -33,7 +33,7 @@
     ">
         <h3 style="margin: 0; font-size: 24px;">Courses</h3>
         <p style="margin: 10px 0; font-size: 36px; font-weight: bold;">
-            <?= 50 ?>
+            <?= htmlspecialchars($courseCount); ?>
         </p>
     </div>
 

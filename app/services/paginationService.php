@@ -2,6 +2,11 @@
 
 namespace App\Services;
 
+/**
+ * Pagination Service
+ * 
+ * Provides functionality to paginate datasets by fetching paginated data and calculating pagination metadata.
+ */
 class PaginationService
 {
     /**

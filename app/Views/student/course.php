@@ -12,7 +12,6 @@ $title = "My Courses"; // Set the page title
         <div class="card-box">
             <h2><?= htmlspecialchars($course['course_name']) ?></h2>
             <p><strong>Description:</strong> <?= htmlspecialchars($course['description']) ?></p>
-            <!-- <p><strong>Instructor:</strong> <?= htmlspecialchars($course['instructor_name']) ?></p> -->
             <p><strong>Enrollment Date:</strong> <?= htmlspecialchars($course['enrollment_date']) ?></p>
         </div>
     <?php endforeach; ?>

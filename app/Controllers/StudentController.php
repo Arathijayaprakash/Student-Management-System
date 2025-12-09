@@ -8,15 +8,34 @@ use App\Models\User;
 use App\Models\Course;
 use App\Services\PaginationService;
 
+/**
+ * Student Controller
+ * 
+ * Handles student-related functionalities, including listing, creating, editing, updating, and deleting students.
+ */
 class StudentController extends Controller
 {
+    /**
+     * @var PaginationService
+     */
     private $paginationService;
 
+    /**
+     * Constructor
+     * Initializes the PaginationService.
+     */
     public function __construct()
     {
         $this->paginationService = new PaginationService();
     }
-    public function index()
+
+    /**
+     * Display a paginated list of students.
+     * Supports search functionality.
+     * 
+     * @return void
+     */
+    public function index(): void
     {
         $studentModel = new Student();
 
@@ -35,7 +54,7 @@ class StudentController extends Controller
             $page,
             $search
         );
-        return $this->view(
+        $this->view(
             "admin/student/studentList",
             [
                 "title" => "Student List",
@@ -48,12 +67,17 @@ class StudentController extends Controller
         );
     }
 
-
-    public function createPage()
+    /**
+     * Display the student creation page.
+     * 
+     * @return void
+     */
+    public function createPage(): void
     {
         $courses = (new Course())->getAll();
 
-        return $this->view(
+        // Render the student creation view
+        $this->view(
             "admin/student/add",
             [
                 "title" => "Add Student",
@@ -63,7 +87,12 @@ class StudentController extends Controller
         );
     }
 
-    public function store()
+    /**
+     * Handle the creation of a new student.
+     * 
+     * @return void
+     */
+    public function store(): void
     {
         $userModel = new User();
         $studentModel = new Student();
@@ -81,46 +110,34 @@ class StudentController extends Controller
         ]);
 
         if (!$userId) {
-            return $this->view("admin/student/add", [
+            $this->view("admin/student/add", [
                 "error" => "Failed to create user"
             ], "admin");
         }
 
-        // -------------------------
-        // Image Upload Handling
-        // -------------------------
-
+        // Handle image upload
         $photoName = null;
-
         if (!empty($_FILES['photo']['name'])) {
-
             $uploadDir = __DIR__ . '/../../public/uploads/students/';
-
             // Create folder if not exists
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-
             $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-
             // Allowed types
             $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-
             if (!in_array(strtolower($ext), $allowed)) {
-                return $this->view("admin/student/add", [
+                $this->view("admin/student/add", [
                     "error" => "Only JPG, PNG, WEBP images allowed"
                 ], "admin");
             }
-
             // Generate unique file name
             $photoName = uniqid('stu_') . '.' . $ext;
-
             $targetPath = $uploadDir . $photoName;
-
             move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath);
         }
 
-        // 2️⃣ Insert into students table
+        // Insert into students table
         $studentModel->create([
             "user_id" => $userId,
             "course_id"  => $_POST["course_id"],
@@ -143,7 +160,7 @@ class StudentController extends Controller
             $page,
             $search
         );
-        return $this->view(
+        $this->view(
             "admin/student/studentList",
             [
                 "title" => "Student List",
@@ -158,14 +175,18 @@ class StudentController extends Controller
         );
     }
 
-    // SHOW EDIT PAGE
-    public function editPage()
+    /**
+     * Display the student edit page.
+     * 
+     * @return void
+     */
+    public function editPage(): void
     {
         $id = $_GET['id'];
         $student = (new Student())->findById($id);
         $courses = (new Course())->getAll();
 
-        return $this->view(
+        $this->view(
             "admin/student/edit",
             [
                 "title" => "Edit Student",
@@ -176,7 +197,11 @@ class StudentController extends Controller
         );
     }
 
-    // UPDATE STUDENT
+    /**
+     * Handle the update of an existing student.
+     * 
+     * @return void
+     */
     public function update()
     {
         $studentModel = new Student();
@@ -209,6 +234,11 @@ class StudentController extends Controller
         exit;
     }
 
+    /**
+     * Handle the deletion of a student.
+     * 
+     * @return void
+     */
     public function delete()
     {
         $id = $_GET['id'];

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title><?= isset($title) ? htmlspecialchars($title) : 'Student Dashboard' ?></title>
+    <title><?= isset($title) ? htmlspecialchars($title) : 'Admin Dashboard' ?></title>
 
     <style>
         body {
@@ -80,14 +80,14 @@
 <body>
 
     <header>
-        Student Dashboard
+        Admin Dashboard
     </header>
 
     <div class="sidebar">
         <h3>Menu</h3>
         <a href="/admin/dashboard">🏠 Home</a>
         <a href="/student">👨‍🎓 Students</a>
-        <a href="/courses">📚 Courses</a>
+        <a href="/course/list">📚 Courses</a>
         <a href="/logout" style="margin-top:20px; background:#c82333;">🚪 Logout</a>
     </div>
 

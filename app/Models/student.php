@@ -4,8 +4,19 @@ namespace App\Models;
 
 use PDO;
 
+/**
+ * Student Model
+ * 
+ * Handles database operations related to students, including creation, retrieval, updating, and filtering.
+ */
 class Student extends Model
 {
+    /**
+     * Create a new student record.
+     * 
+     * @param array $data Associative array containing 'user_id', 'course_id', and optional 'photo'.
+     * @return bool Returns true on success, false on failure.
+     */
     public function create(array $data): bool
     {
         $sql = "INSERT INTO students (user_id, course_id, photo)
@@ -20,7 +31,11 @@ class Student extends Model
         ]);
     }
 
-
+    /**
+     * Retrieve all student records.
+     * 
+     * @return array Returns an array of all students with their associated user and course details.
+     */
     public function getAll(): array
     {
         $sql = "SELECT s.id, u.name, u.email, u.role, s.photo, s.created_at, c.course_name AS course
@@ -31,6 +46,12 @@ class Student extends Model
         return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Find a student by their ID.
+     * 
+     * @param int $id The ID of the student.
+     * @return array|null Returns the student record as an associative array, or null if not found.
+     */
     public function findById(int $id): ?array
     {
         $sql = "SELECT s.id, s.user_id, s.photo, c.course_name, c.id as course_id, s.created_at,
@@ -46,6 +67,13 @@ class Student extends Model
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
+
+    /**
+     * Find a student by their user ID.
+     * 
+     * @param int $userId The user ID associated with the student.
+     * @return array|null Returns the student record as an associative array, or null if not found.
+     */
     public function findByUserId(int $userId): ?array
     {
         $sql = "SELECT s.id, s.user_id, s.photo, c.course_name, c.id as course_id, s.created_at,
@@ -61,6 +89,13 @@ class Student extends Model
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
+
+    /**
+     * Retrieve courses associated with a specific user ID.
+     * 
+     * @param int $userId The user ID associated with the student.
+     * @return array Returns an array of courses enrolled by the student.
+     */
     public function getCoursesByUserId(int $userId): array
     {
         $sql = "SELECT 
@@ -77,6 +112,14 @@ class Student extends Model
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Update a student record.
+     * 
+     * @param int $id The ID of the student to update.
+     * @param array $data Associative array containing 'course_id' and optional 'photo'.
+     * @return bool Returns true on success, false on failure.
+     */
     public function update($id, array $data)
     {
         $sql = "UPDATE students SET course_id = :course_id, photo = :photo WHERE id = :id";
@@ -85,6 +128,14 @@ class Student extends Model
         return $stmt->execute($data);
     }
 
+    /**
+     * Retrieve a paginated and filtered list of students.
+     * 
+     * @param string $search Search term for filtering students.
+     * @param int $limit Number of records per page.
+     * @param int $offset Offset for pagination.
+     * @return array Returns an array of filtered and paginated student records.
+     */
     public function getFilteredPaginated(string $search, int $limit, int $offset): array
     {
         $sql = "
@@ -111,6 +162,13 @@ class Student extends Model
 
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Count the total number of filtered student records.
+     * 
+     * @param string $search Search term for filtering students.
+     * @return int Returns the total count of filtered student records.
+     */
     public function countFiltered(string $search): int
     {
         $sql = "
@@ -129,11 +187,23 @@ class Student extends Model
         return (int)$stmt->fetchColumn();
     }
 
+    /**
+     * Count the total number of student records.
+     * 
+     * @return int Returns the total count of student records.
+     */
     public function countAll(): int
     {
         return (int)$this->db->query("SELECT COUNT(*) FROM students")->fetchColumn();
     }
 
+    /**
+     * Update the profile of a student.
+     * 
+     * @param int $userId The user ID associated with the student.
+     * @param array $data Associative array containing 'name', 'email', and optional 'photo'.
+     * @return bool Returns true on success, false on failure.
+     */
     public function updateProfile(int $userId, array $data): bool
     {
         try {

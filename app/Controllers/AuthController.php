@@ -5,41 +5,74 @@ namespace App\Controllers;
 use App\Models\User;
 use App\Core\Controller;
 
+/**
+ * Authentication Controller
+ * 
+ * Handles user authentication, including login, logout, and role-based redirection.
+ */
 class AuthController extends Controller
 {
-    public function loginPage()
+    /**
+     * Display the login page.
+     * Redirects logged-in users to their respective dashboards.
+     * 
+     * @return void
+     */
+    public function loginPage(): void
     {
-        // If already logged in, redirect to their dashboard
-        session_start();
+        // Ensure the session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Redirect if already logged in
         if (!empty($_SESSION['user'])) {
             $this->redirectToRole($_SESSION['user']['role']);
             return;
         }
-        return $this->view("auth/login", []);
+
+        // Render the login view
+        $this->view("auth/login", []);
     }
-    public function login()
+
+    /**
+     * Handle user login.
+     * Validates credentials and redirects based on user role.
+     * 
+     * @return void
+     */
+    public function login(): void
     {
-        session_start();
+        // Ensure the session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
         // Basic validation
-        if ($username === '' || $password === '') {
-            return $this->view('auth/login', ['error' => 'Username and password are required.']);
+        if (empty($username) || empty($password)) {
+            $this->view('auth/login', ['error' => 'Username and password are required.']);
+            return;
         }
 
+        // Fetch user from the database
         $userModel = new User();
         $user = $userModel->findByUsername($username);
 
+        // Check if user exists
         if (!$user) {
-            return $this->view('auth/login', ['error' => 'Invalid credentials.']);
+            $this->view('auth/login', ['error' => 'Invalid credentials.']);
+            return;
         }
 
         // Verify password
         if (!password_verify($password, $user['password'])) {
-            return $this->view('auth/login', ['error' => 'Invalid credentials.']);
+            $this->view('auth/login', ['error' => 'Invalid credentials.']);
+            return;
         }
+
         // Login success — set session
         $_SESSION['user'] = [
             'id' => $user['id'],
@@ -51,26 +84,44 @@ class AuthController extends Controller
         $this->redirectToRole($user['role']);
     }
 
-    public function logout()
+    /**
+     * Handle user logout.
+     * Destroys the session and redirects to the login page.
+     * 
+     * @return void
+     */
+    public function logout(): void
     {
-        session_start();
+        // Ensure the session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Destroy the session
         session_destroy();
 
+        // Redirect to login page
         header('Location: /login');
         exit;
     }
-    private function redirectToRole(string $role)
+
+    /**
+     * Redirect user based on their role.
+     * 
+     * @param string $role The user's role.
+     * 
+     * @return void
+     */
+    private function redirectToRole(string $role): void
     {
-        if ($role === 'admin') {
-            header('Location: /admin/dashboard');
-            exit;
-        }
-        if ($role === 'teacher') {
-            header('Location: /teacher/dashboard');
-            exit;
-        }
-        // default student
-        header('Location: /student/dashboard');
+        $redirectMap = [
+            'admin' => '/admin/dashboard',
+            'student' => '/student/dashboard'
+        ];
+
+        // Redirect to the appropriate dashboard
+        $redirectUrl = $redirectMap[$role] ?? '/login';
+        header("Location: $redirectUrl");
         exit;
     }
 }

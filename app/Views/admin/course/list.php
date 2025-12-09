@@ -1,7 +1,7 @@
     <h2>Course List</h2>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <!-- Search Form -->
-        <form method="GET" action="/courses" style="margin-bottom: 20px;">
+        <form method="GET" action="/course/list" style="margin-bottom: 20px;">
             <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
                 placeholder="Search by course"
                 style="padding: 8px; width: 300px; border: 1px solid #ccc; border-radius: 4px;">
@@ -10,7 +10,7 @@
             </button>
             <!-- Clear Search Button -->
             <?php if (!empty($search)): ?>
-                <a href="/courses" style="padding: 6px 10px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
+                <a href="/course/list" style="padding: 6px 10px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
                     Clear Search
                 </a>
             <?php endif; ?>
@@ -43,12 +43,12 @@
                         <td><?= htmlspecialchars($course['duration']) . ' months' ?></td>
 
                         <td>
-                            <a href="/admin/course/edit?id=<?= $course['id'] ?>"
+                            <a href="/course/edit?id=<?= $course['id'] ?>"
                                 style="padding: 5px 10px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
                                 Edit
                             </a>
 
-                            <a href="/admin/course/delete?id=<?= $course['id'] ?>"
+                            <a href="/course/delete?id=<?= $course['id'] ?>"
                                 onclick="return confirm('Are you sure you want to delete this course?');"
                                 style="padding: 5px 10px; background: #dc3545; color: white; text-decoration: none; border-radius: 4px;">
                                 Delete
@@ -71,7 +71,7 @@
 
             <!-- Previous Page -->
             <?php if ($page > 1): ?>
-                <a href="/courses?page=<?= $page - 1 ?>&search=<?= urldecode($search) ?>"
+                <a href="/course/list?page=<?= $page - 1 ?>&search=<?= urldecode($search) ?>"
                     style="padding:8px 14px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
                     Prev
                 </a>
@@ -79,7 +79,7 @@
 
             <!-- Page Numbers -->
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="/courses?page=<?= $i ?>&search=<?= urldecode($search) ?>"
+                <a href="/course/list?page=<?= $i ?>&search=<?= urldecode($search) ?>"
                     style="
                     padding:8px 14px;
                     margin:0 3px;
@@ -93,7 +93,7 @@
 
             <!-- Next Page -->
             <?php if ($page < $totalPages): ?>
-                <a href="/courses?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                <a href="/course/list?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
                     style="padding:8px 14px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
                     Next
                 </a>
