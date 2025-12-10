@@ -116,7 +116,8 @@ class AuthController extends Controller
     {
         $redirectMap = [
             'admin' => '/admin/dashboard',
-            'student' => '/student/dashboard'
+            'student' => '/student/dashboard',
+            'teacher' => '/teacher/dashboard',
         ];
 
         // Redirect to the appropriate dashboard

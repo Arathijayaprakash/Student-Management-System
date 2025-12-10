@@ -8,6 +8,7 @@ use App\Controllers\AdminController;
 use App\Middleware\AuthMiddleware;
 use App\Controllers\CourseController;
 use App\Controllers\StudentProfileController;
+use App\Controllers\TeacherController;
 
 /**
  * Application Router
@@ -39,6 +40,38 @@ $router->get('/admin/dashboard', function () {
     (new AdminController())->dashboard();
 });
 
+$router->get('/teachers', function () {
+    AuthMiddleware::checkRole(['admin']);
+    (new TeacherController())->index();
+});
+
+$router->get('/teachers/add', function () {
+    AuthMiddleware::checkRole(['admin']);
+    (new TeacherController())->createPage();
+});
+
+$router->post('/teachers/add', function () {
+    AuthMiddleware::checkRole(['admin']);
+    (new TeacherController())->store();
+});
+
+$router->get('/teachers/edit', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+    (new TeacherController())->editPage();
+});
+
+$router->post('/teachers/update', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+    (new TeacherController())->update($id);
+});
+
+$router->get('/teachers/delete', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+    (new TeacherController())->delete($id);
+});
 $router->get('/student', function () {
     AuthMiddleware::checkRole(['admin']);
     (new StudentController())->index();
@@ -105,6 +138,18 @@ $router->get('/course/delete', function () {
     (new CourseController())->delete($id);
 });
 
+$router->get('/assign-courses', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = $_GET['id'] ?? null;
+    (new AdminController())->assignCoursesPage($id);
+});
+
+$router->post('/assign-courses/assign', function () {
+    AuthMiddleware::checkRole(['admin']);
+    $id = $_GET['id'] ?? null;
+    (new AdminController())->assignCourses($id);
+});
+
 /*
 |--------------------------------------------------------------------------
 | STUDENT ROUTES (Protected)
@@ -139,6 +184,17 @@ $router->post('/student/change_password', function () {
     AuthMiddleware::checkRole(['student']);
     (new StudentProfileController())->changePassword();
 });
+
+/*
+|--------------------------------------------------------------------------
+| TEACHER ROUTES (Protected)
+|--------------------------------------------------------------------------
+*/
+$router->get('/teacher/dashboard', function () {
+    AuthMiddleware::checkRole(['teacher']);
+    (new TeacherController())->dashboard();
+});
+
 
 // Resolve the current request
 $router->resolve();
