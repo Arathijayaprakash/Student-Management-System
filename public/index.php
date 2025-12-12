@@ -165,7 +165,7 @@ $router->get('/student/profile', function () {
     (new StudentProfileController())->viewProfile();
 });
 
-$router->post('/profile/update', function () {
+$router->post('/student/profile/update', function () {
     AuthMiddleware::checkRole(['student']);
     (new StudentProfileController())->updateProfile();
 });
@@ -194,7 +194,27 @@ $router->get('/teacher/dashboard', function () {
     AuthMiddleware::checkRole(['teacher']);
     (new TeacherController())->dashboard();
 });
+$router->get('/teacher/profile', function () {
+    AuthMiddleware::checkRole(['teacher']);
+    (new TeacherController())->profile();
+});
+$router->post('/teacher/profile/update', function () {
+    AuthMiddleware::checkRole(['teacher']);
+    (new TeacherController())->update();
+});
+$router->get('/teacher/assigned-courses', function () {
+    AuthMiddleware::checkRole(['teacher']);
+    (new TeacherController())->assignedCourses();
+});
 
+$router->get('/teacher/change-password', function () {
+    AuthMiddleware::checkRole(['teacher']);
+    (new TeacherController())->changePassword();
+});
 
+$router->post('/teacher/change-password', function () {
+    AuthMiddleware::checkRole(['teacher']);
+    (new TeacherController())->changePassword();
+});
 // Resolve the current request
 $router->resolve();

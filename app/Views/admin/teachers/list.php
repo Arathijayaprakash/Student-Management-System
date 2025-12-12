@@ -32,6 +32,7 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Qualification</th>
+                    <th>Assigned Courses</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -44,22 +45,27 @@
                         <td><?= htmlspecialchars($teacher['phone']) ?></td>
                         <td><?= htmlspecialchars($teacher['qualification']) ?></td>
                         <td>
+                            <?= !empty($teacher['assigned_courses'])
+                                ? htmlspecialchars($teacher['assigned_courses'])
+                                : 'No courses assigned'; ?>
+                        </td>
+                        <td>
                             <!-- Edit Button -->
                             <a href="/teachers/edit?id=<?= $teacher['id'] ?>"
-                                style="background:#ffc107; padding:6px 12px; color:black; text-decoration:none; border-radius:4px;">
+                                style="background:#ffc107; padding:6px 12px; color:black; text-decoration:none; border-radius:4px; margin-right:8px; display:inline-block;">
                                 Edit
                             </a>
 
                             <!-- Delete Button -->
                             <a href="/teachers/delete?id=<?= $teacher['id'] ?>"
-                                onclick="return confirm('Are you sure you want to delete this student?');"
-                                style="background:#dc3545; padding:6px 12px; color:white; text-decoration:none; border-radius:4px; margin-left:6px;">
+                                onclick="return confirm('Are you sure you want to delete this teacher?');"
+                                style="background:#dc3545; padding:6px 12px; color:white; text-decoration:none; border-radius:4px; margin-right:8px; display:inline-block;">
                                 Delete
                             </a>
 
                             <!-- Assign Course Button -->
                             <a href="/assign-courses?id=<?= $teacher['id'] ?>"
-                                style="background:#28a745; padding:6px 12px; color:white; text-decoration:none; border-radius:4px; margin-left:6px;">
+                                style="background:#28a745; padding:6px 12px; color:white; text-decoration:none; border-radius:4px; display:inline-block;">
                                 Assign Course
                             </a>
                         </td>

@@ -37,4 +37,19 @@
         </p>
     </div>
 
+    <!-- Teacher Count Card -->
+    <div style="
+        flex: 1;
+        padding: 20px;
+        background: #ffc107;
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    ">
+        <h3 style="margin: 0; font-size: 24px;">Teachers</h3>
+        <p style="margin: 10px 0; font-size: 36px; font-weight: bold;">
+            <?= htmlspecialchars($teacherCount); ?>
+        </p>
+    </div>
 </div>

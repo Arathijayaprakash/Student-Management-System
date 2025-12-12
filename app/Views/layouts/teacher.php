@@ -87,8 +87,8 @@
         <h3>Menu</h3>
         <a href="/teacher/dashboard">🏠 Dashboard</a>
         <a href="/teacher/profile">👤 Profile</a>
-        <a href="/teacher/courses">📘 Assigned Courses</a>
-        <a href="/teacher/change_password">🔒 Change Password</a>
+        <a href="/teacher/assigned-courses">📘 Assigned Courses</a>
+        <a href="/teacher/change-password">🔒 Change Password</a>
         <a href="/logout" style="margin-top:20px; background:#c82333;">🚪 Logout</a>
     </div>
     <div class="main-content">

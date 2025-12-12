@@ -41,20 +41,22 @@ class Teacher extends Model
      */
     public function getFilteredPaginated(string $search, int $limit, int $offset): array
     {
-        $sql = "
-        SELECT 
+        $sql = "SELECT 
             teachers.id,
             teachers.phone,
             teachers.qualification,
             users.name,
-            users.email
+            users.email,
+            GROUP_CONCAT(courses.course_name SEPARATOR ', ') AS assigned_courses
         FROM teachers
         JOIN users ON teachers.user_id = users.id
+        LEFT JOIN course_teacher ON teachers.id = course_teacher.teacher_id
+        LEFT JOIN courses ON course_teacher.course_id = courses.id
         WHERE users.name LIKE :search 
            OR users.email LIKE :search 
            OR teachers.qualification LIKE :search
-        LIMIT :limit OFFSET :offset
-    ";
+        GROUP BY teachers.id
+        LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":search", '%' . $search . '%', \PDO::PARAM_STR);
@@ -63,6 +65,27 @@ class Teacher extends Model
         $stmt->execute();
 
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Find a teacher by their user ID.
+     * 
+     * @param int $userId The user ID associated with the teacher.
+     * @return array|null Returns the teacher record as an associative array, or null if not found.
+     */
+    public function findByUserId(int $userId): ?array
+    {
+        $sql = "SELECT t.id, t.user_id, t.phone, t.qualification, t.created_at,
+                   u.name, u.email, u.role
+            FROM teachers t
+            JOIN users u ON u.id = t.user_id
+            WHERE t.user_id = :user_id
+            LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':user_id' => $userId]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
     /**
@@ -86,6 +109,16 @@ class Teacher extends Model
         $stmt->execute();
 
         return (int)$stmt->fetchColumn();
+    }
+
+    /**
+     * Count the total number of teacher records.
+     * 
+     * @return int Returns the total count of teacher records.
+     */
+    public function countAll(): int
+    {
+        return (int)$this->db->query("SELECT COUNT(*) FROM teachers")->fetchColumn();
     }
 
 
@@ -125,6 +158,30 @@ class Teacher extends Model
         return $stmt->execute($data);
     }
 
+    /**
+     * Get the courses assigned to a teacher.
+     *
+     * @param int $teacherId The ID of the teacher.
+     * @return array Returns an array of assigned courses.
+     */
+    public function getAssignedCourses(int $teacherId): array
+    {
+        $sql = "
+        SELECT 
+            c.id, 
+            c.course_name, 
+            c.description, 
+            c.created_at 
+        FROM courses c
+        JOIN course_teacher ct ON c.id = ct.course_id
+        WHERE ct.teacher_id = :teacher_id
+    ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':teacher_id' => $teacherId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     /**
      * Assign multiple courses to a teacher.
      * 

@@ -5,7 +5,8 @@
         <?= htmlspecialchars($success) ?>
     </div>
 <?php endif; ?>
-<form method="POST" action="/student/profile/update" style="
+
+<form method="POST" action="/teacher/profile/update" style="
     background:white;
     padding:20px;
     border-radius:8px;
@@ -14,8 +15,9 @@
 " enctype="multipart/form-data">
 
     <div style="margin-bottom:15px;">
+        <input type="hidden" name="id" value="<?= $teacher['id'] ?>">
         <label style="display:block; font-weight:bold; margin-bottom:5px;">Full Name:</label>
-        <input type="text" name="name" value="<?= htmlspecialchars($student['name']) ?>" required style="
+        <input type="text" name="name" value="<?= htmlspecialchars($teacher['name']) ?>" required style="
             width:100%;
             padding:10px;
             border:1px solid #ccc;
@@ -25,7 +27,7 @@
 
     <div style="margin-bottom:15px;">
         <label style="display:block; font-weight:bold; margin-bottom:5px;">Email:</label>
-        <input type="email" name="email" value="<?= htmlspecialchars($student['email']) ?>" required style="
+        <input type="email" name="email" value="<?= htmlspecialchars($teacher['email']) ?>" required style="
             width:100%;
             padding:10px;
             border:1px solid #ccc;
@@ -34,20 +36,21 @@
     </div>
 
     <div style="margin-bottom:15px;">
-        <label style="display:block; font-weight:bold; margin-bottom:5px;">Current Image:</label>
-        <?php if (!empty($student['photo'])): ?>
-            <img src="/uploads/students/<?= htmlspecialchars($student['photo']) ?>" width="80" alt="Student Photo">
-        <?php endif; ?>
-    </div>
-
-    <div style="margin-bottom:15px;">
-        <label style="display:block; font-weight:bold; margin-bottom:5px;">Upload New Image:</label>
-        <input type="file" name="photo" accept="image/*" style="
+        <label style="display:block; font-weight:bold; margin-bottom:5px;">Phone:</label>
+        <input type="text" name="phone" value="<?= htmlspecialchars($teacher['phone']) ?>" required style="
             width:100%;
-            padding:8px;
+            padding:10px;
             border:1px solid #ccc;
             border-radius:5px;
-            background:white;
+        ">
+    </div>
+    <div style="margin-bottom:15px;">
+        <label style="display:block; font-weight:bold; margin-bottom:5px;">Qualification:</label>
+        <input type="text" name="qualification" value="<?= htmlspecialchars($teacher['qualification']) ?>" required style="
+            width:100%;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:5px;
         ">
     </div>
 

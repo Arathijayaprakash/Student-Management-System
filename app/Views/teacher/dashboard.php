@@ -10,7 +10,7 @@ $title = "Teacher Dashboard"; // Set the page title
 <div class="card-box">
     <h2>Assigned Courses</h2>
     <p>View the courses assigned to you and manage them.</p>
-    <a href="/teacher/courses" style="color: #007bff; text-decoration: underline;">View Assigned Courses</a>
+    <a href="/teacher/assigned-courses" style="color: #007bff; text-decoration: underline;">View Assigned Courses</a>
 </div>
 
 <div class="card-box">
@@ -22,5 +22,5 @@ $title = "Teacher Dashboard"; // Set the page title
 <div class="card-box">
     <h2>Change Password</h2>
     <p>Ensure your account is secure by updating your password regularly.</p>
-    <a href="/teacher/change_password" style="color: #007bff; text-decoration: underline;">Change Password</a>
+    <a href="/teacher/change-password" style="color: #007bff; text-decoration: underline;">Change Password</a>
 </div>

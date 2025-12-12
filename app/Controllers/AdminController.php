@@ -24,9 +24,11 @@ class AdminController extends Controller
     {
         $studentCount = (new Student())->countAll();
         $courseCount = (new Course())->countAll();
+        $teacherCount = (new Teacher())->countAll();
         return $this->view("admin/dashboard", [
             "studentCount" => $studentCount,
             "courseCount" => $courseCount,
+            "teacherCount" => $teacherCount,
         ], "admin");
     }
 

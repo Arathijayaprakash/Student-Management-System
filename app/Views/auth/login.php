@@ -33,62 +33,119 @@ $tips = [
     <title><?= APP_NAME ?> - Login</title>
 
     <style>
+        /* General Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #007bff, #6c757d);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
         .login-container {
-            width: 350px;
-            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease-in-out;
         }
 
         .login-container h2 {
             text-align: center;
-            font-size: 22px;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
         }
 
         .error {
-            color: red;
+            color: #dc3545;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 6px;
             border: 1px solid #ccc;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            outline: none;
         }
 
         button {
             width: 100%;
             background: #007bff;
-            padding: 10px;
+            padding: 12px;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: #0056b3;
         }
 
         .tips {
             background: #eef5ff;
-            padding: 10px;
-            margin-top: 15px;
-            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
             font-size: 14px;
+            color: #333;
         }
 
         .tips ul {
             margin: 0;
             padding: 0 0 0 18px;
+        }
+
+        .tips ul li {
+            margin-bottom: 8px;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 20px;
+            }
+
+            input,
+            button {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -119,15 +176,7 @@ $tips = [
 
             <button type="submit">Login</button>
         </form>
-
-        <div class="tips">
-            <strong>Login Tips:</strong>
-            <ul>
-                <?php foreach ($tips as $tip): ?>
-                    <li><?= sanitize($tip) ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+   
     </div>
 
 </body>

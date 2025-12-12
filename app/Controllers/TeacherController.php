@@ -157,6 +157,86 @@ class TeacherController extends Controller
     {
         return $this->view("teacher/dashboard", [], "teacher");
     }
+    public function profile()
+    {
+        // Get logged-in teacher ID from session
+        $userId = $_SESSION['user']['id'];
+        // Fetch teacher details
+        $teacher = (new Teacher())->findByUserId($userId);
+
+        return $this->view("teacher/profile", [
+            "teacher" => $teacher,
+        ], "teacher");
+    }
+    public function assignedCourses()
+    {
+        // Get the logged-in teacher's user ID from the session
+        $userId = $_SESSION['user']['id'];
+
+        // Fetch the teacher's details using their user ID
+        $teacher = (new Teacher())->findByUserId($userId);
+
+        if (!$teacher) {
+            // Handle case where teacher is not found
+            header("Location: /teacher/dashboard?error=Teacher not found");
+            exit;
+        }
+
+        // Fetch the assigned courses for the teacher
+        $courses = (new Teacher())->getAssignedCourses($teacher['id']);
+
+        // Render the view with the assigned courses
+        $this->view("/teacher/assigned-courses", [
+            "title" => "Assigned Courses",
+            "courses" => $courses,
+        ], "teacher");
+    }
+
+    public function updateProfile()
+    {
+        // Check if the form is submitted via POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = $_POST['name'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $phone = $_POST['phone'] ?? '';
+            $qualification = $_POST['qualification'] ?? '';
+
+            // Validate input
+            if (empty($name) || empty($email) || empty($phone) || empty($qualification)) {
+                return $this->view(
+                    "teacher/profile",
+                    [
+                        "title" => "My Profile",
+                        "teacher" => $_SESSION['user'], // Pass current user data
+                        "success" => null,
+                        "error" => "Name and email are required."
+                    ],
+                    layout: "teacher"
+                );
+            }
+
+            // Fetch the current user
+            $userId = $_SESSION['user']['id'];
+            $teacherModel = new Teacher();
+            $user = $teacherModel->findByUserId($userId);
+            // Update user data
+            $teacherModel->update($userId, [
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'qualification' => $qualification,
+            ]);
+
+            // Update session data
+            $_SESSION['user']['name'] = $name;
+            $_SESSION['user']['email'] = $email;
+            $_SESSION['user']['phone'] = $phone;
+            $_SESSION['user']['qualification'] = $qualification;
+            // Redirect with success message
+            header("Location: /teacher/profile?success=Profile updated successfully.");
+            exit;
+        }
+    }
 
     /**
      * Display the teacher edit page.
@@ -190,6 +270,7 @@ class TeacherController extends Controller
         $teacherModel = new Teacher();
         $userModel = new User();
 
+        print_r($_POST);
         $id = $_POST['id'];
         $teacher = $teacherModel->findById($id);
 
@@ -205,8 +286,16 @@ class TeacherController extends Controller
             "qualification"  => $_POST['qualification'],
         ]);
 
-        header("Location: /teachers?updated=1");
-        exit;
+        // Check the user's role from the session
+        $userRole = $_SESSION['user']['role'] ?? null;
+
+        // Redirect based on the user's role
+        if ($userRole === 'admin') {
+            header("Location: /teachers?updated=1");
+        } elseif ($userRole === 'teacher') {
+            header("Location: /teacher/profile?updated=1");
+        }
+
         exit;
     }
 
@@ -231,5 +320,71 @@ class TeacherController extends Controller
 
         header("Location: /teachers?deleted=1");
         exit;
+    }
+
+    public function changePassword()
+    {
+        // Check if the form is submitted
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $currentPassword = $_POST['current_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            // Validate input
+            if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+                return $this->view(
+                    "teacher/change-password",
+                    [
+                        "title" => "Change Password",
+                        "error" => "All fields are required."
+                    ],
+                    layout: "teacher"
+                );
+            }
+
+            if ($newPassword !== $confirmPassword) {
+                return $this->view(
+                    "teacher/change-password",
+                    [
+                        "title" => "Change Password",
+                        "error" => "New password and confirm password do not match."
+                    ],
+                    layout: "teacher"
+                );
+            }
+            // Fetch the current user
+            $userId = $_SESSION['user']['id'];
+            $userModel = new User();
+            $user = $userModel->findById($userId);
+
+            // Verify current password
+            if (!password_verify($currentPassword, $user['password'])) {
+                return $this->view(
+                    "teacher/change-password",
+                    [
+                        "title" => "Change Password",
+                        "error" => "Current password is incorrect."
+                    ],
+                    layout: "student"
+                );
+            }
+
+            // Update password
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $userModel->updatePassword($userId, $hashedPassword);
+
+            // Redirect with success message
+            header("Location: /teacher/dashboard?success=Password updated successfully.");
+            exit;
+        }
+
+        // Render the change password form
+        return $this->view(
+            "teacher/change-password",
+            [
+                "title" => "Change Password"
+            ],
+            layout: "teacher"
+        );
     }
 }
