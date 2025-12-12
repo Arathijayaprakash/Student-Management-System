@@ -20,10 +20,7 @@ class AuthController extends Controller
      */
     public function loginPage(): void
     {
-        // Ensure the session is started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->startSession();
 
         // Redirect if already logged in
         if (!empty($_SESSION['user'])) {
@@ -43,15 +40,12 @@ class AuthController extends Controller
      */
     public function login(): void
     {
-        // Ensure the session is started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->startSession();
 
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        // Basic validation
+        // validate input
         if (empty($username) || empty($password)) {
             $this->view('auth/login', ['error' => 'Username and password are required.']);
             return;
@@ -92,10 +86,7 @@ class AuthController extends Controller
      */
     public function logout(): void
     {
-        // Ensure the session is started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->startSession();
 
         // Destroy the session
         session_destroy();
@@ -124,5 +115,16 @@ class AuthController extends Controller
         $redirectUrl = $redirectMap[$role] ?? '/login';
         header("Location: $redirectUrl");
         exit;
+    }
+    /**
+     * Start the session if it hasn't been started already.
+     * 
+     * @return void
+     */
+    private function startSession(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
     }
 }

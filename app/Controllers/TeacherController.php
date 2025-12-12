@@ -153,10 +153,22 @@ class TeacherController extends Controller
         );
     }
 
+    /**
+     * Display the teacher dashboard.
+     * 
+     * @return void
+     */
     public function dashboard()
     {
         return $this->view("teacher/dashboard", [], "teacher");
     }
+
+
+    /**
+     * Display the teacher's profile.
+     * 
+     * @return void
+     */
     public function profile()
     {
         // Get logged-in teacher ID from session
@@ -168,6 +180,12 @@ class TeacherController extends Controller
             "teacher" => $teacher,
         ], "teacher");
     }
+
+    /**
+     * Display the teacher's assigned courses.
+     * 
+     * @return void
+     */
     public function assignedCourses()
     {
         // Get the logged-in teacher's user ID from the session
@@ -177,9 +195,8 @@ class TeacherController extends Controller
         $teacher = (new Teacher())->findByUserId($userId);
 
         if (!$teacher) {
-            // Handle case where teacher is not found
-            header("Location: /teacher/dashboard?error=Teacher not found");
-            exit;
+            $this->redirectWithMessage('/teacher/dashboard', 'error=Teacher not found');
+            return;
         }
 
         // Fetch the assigned courses for the teacher
@@ -192,6 +209,11 @@ class TeacherController extends Controller
         ], "teacher");
     }
 
+    /**
+     * Handle the update of the teacher's profile.
+     * 
+     * @return void
+     */
     public function updateProfile()
     {
         // Check if the form is submitted via POST
@@ -232,9 +254,8 @@ class TeacherController extends Controller
             $_SESSION['user']['email'] = $email;
             $_SESSION['user']['phone'] = $phone;
             $_SESSION['user']['qualification'] = $qualification;
-            // Redirect with success message
-            header("Location: /teacher/profile?success=Profile updated successfully.");
-            exit;
+
+            $this->redirectWithMessage('/teacher/profile', 'success=Profile updated successfully!');
         }
     }
 
@@ -322,7 +343,12 @@ class TeacherController extends Controller
         exit;
     }
 
-    public function changePassword()
+    /**
+     * Handle password change for the teacher.
+     * 
+     * @return void
+     */
+    public function changePassword(): void
     {
         // Check if the form is submitted
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -332,7 +358,7 @@ class TeacherController extends Controller
 
             // Validate input
             if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-                return $this->view(
+                $this->view(
                     "teacher/change-password",
                     [
                         "title" => "Change Password",
@@ -340,10 +366,11 @@ class TeacherController extends Controller
                     ],
                     layout: "teacher"
                 );
+                return;
             }
 
             if ($newPassword !== $confirmPassword) {
-                return $this->view(
+                $this->view(
                     "teacher/change-password",
                     [
                         "title" => "Change Password",
@@ -351,6 +378,7 @@ class TeacherController extends Controller
                     ],
                     layout: "teacher"
                 );
+                return;
             }
             // Fetch the current user
             $userId = $_SESSION['user']['id'];
@@ -359,7 +387,7 @@ class TeacherController extends Controller
 
             // Verify current password
             if (!password_verify($currentPassword, $user['password'])) {
-                return $this->view(
+                $this->view(
                     "teacher/change-password",
                     [
                         "title" => "Change Password",
@@ -367,6 +395,7 @@ class TeacherController extends Controller
                     ],
                     layout: "student"
                 );
+                return;
             }
 
             // Update password
@@ -379,12 +408,13 @@ class TeacherController extends Controller
         }
 
         // Render the change password form
-        return $this->view(
+        $this->view(
             "teacher/change-password",
             [
                 "title" => "Change Password"
             ],
             layout: "teacher"
         );
+        return;
     }
 }

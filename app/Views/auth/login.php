@@ -17,12 +17,6 @@ if (!session_id()) {
 $errorMessage = $error ?? "";  // from controller using extract()
 $isError = !empty($errorMessage);
 
-$tips = [
-    "Use a strong password",
-    "Do not share your credentials",
-    "Logout after use"
-];
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,24 +99,6 @@ $tips = [
             background: #0056b3;
         }
 
-        .tips {
-            background: #eef5ff;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .tips ul {
-            margin: 0;
-            padding: 0 0 0 18px;
-        }
-
-        .tips ul li {
-            margin-bottom: 8px;
-        }
-
         /* Animation */
         @keyframes fadeIn {
             from {
@@ -176,7 +152,7 @@ $tips = [
 
             <button type="submit">Login</button>
         </form>
-   
+
     </div>
 
 </body>

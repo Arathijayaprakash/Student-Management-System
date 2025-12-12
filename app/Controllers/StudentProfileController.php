@@ -13,11 +13,20 @@ use App\Models\User;
  */
 class StudentProfileController extends Controller
 {
+    /**
+     * Display the student dashboard.
+     * 
+     * @return void
+     */
     public function dashboard()
     {
         return $this->view("student/dashboard", [], "student");
     }
-    // VIEW PROFILE
+    /**
+     * Display the student's profile.
+     * 
+     * @return void
+     */
     public function viewProfile()
     {
         // Get logged-in student ID from session
@@ -34,6 +43,11 @@ class StudentProfileController extends Controller
             layout: "student"
         );
     }
+    /**
+     * Handle profile update.
+     * 
+     * @return void
+     */
     public function updateProfile()
     {
         // Check if the form is submitted via POST
@@ -61,12 +75,8 @@ class StudentProfileController extends Controller
             $studentModel = new Student();
             $user = $studentModel->findByUserId($userId);
             // Handle photo upload
-            $photoName = $user['photo']; // Keep current photo by default
-            if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../../public/uploads/students/';
-                $photoName = uniqid() . '_' . basename($photo['name']);
-                move_uploaded_file($photo['tmp_name'], $uploadDir . $photoName);
-            }
+            $photoName = $this->handleImageUpload($photo, $user['photo']);
+
 
             // Update user data
             $studentModel->updateProfile($userId, [
@@ -79,9 +89,8 @@ class StudentProfileController extends Controller
             $_SESSION['user']['name'] = $name;
             $_SESSION['user']['email'] = $email;
             $_SESSION['user']['photo'] = $photoName;
-            // Redirect with success message
-            header("Location: /student/profile?success=Profile updated successfully.");
-            exit;
+
+            $this->redirectWithMessage('/student/profile', 'success=Profile updated successfully.');
         }
     }
     public function courses()
@@ -154,9 +163,7 @@ class StudentProfileController extends Controller
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $userModel->updatePassword($userId, $hashedPassword);
 
-            // Redirect with success message
-            header("Location: /student/dashboard?success=Password updated successfully.");
-            exit;
+            $this->redirectWithMessage('/student/dashboard', 'success=Password updated successfully.');
         }
 
 

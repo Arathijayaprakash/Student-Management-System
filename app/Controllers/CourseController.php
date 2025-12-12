@@ -65,9 +65,9 @@ class CourseController extends Controller
      * 
      * @return void
      */
-    public function createPage()
+    public function createPage(): void
     {
-        return $this->view("admin/course/add", [], "admin");
+        $this->view("admin/course/add", [], "admin");
     }
 
     /**
@@ -75,7 +75,7 @@ class CourseController extends Controller
      * 
      * @return void
      */
-    public function store()
+    public function store(): void
     {
         (new Course())->create($_POST);
 
@@ -88,10 +88,24 @@ class CourseController extends Controller
      * 
      * @return void
      */
-    public function editPage()
+    public function editPage(): void
     {
-        $course = (new Course())->findById($_GET['id']);
-        return $this->view("admin/course/edit", [
+        $courseId = $_GET['id'] ?? null;
+
+        if (!$courseId) {
+            $this->redirectWithMessage('/course/list', 'error=invalid_id');
+            return;
+        }
+
+        $courseModel = new Course();
+        $course = $courseModel->findById($courseId);
+
+        if (!$course) {
+            $this->redirectWithMessage('/course/list', 'error=not_found');
+            return;
+        }
+
+        $this->view("admin/course/edit", [
             "course" => $course
         ], "admin");
     }
@@ -101,12 +115,19 @@ class CourseController extends Controller
      * 
      * @return void
      */
-    public function update()
+    public function update(): void
     {
-        (new Course())->update($_POST['id'], $_POST);
+        $courseId = $_POST['id'] ?? null;
 
-        header("Location: /course/list?updated=1");
-        exit;
+        if (!$courseId) {
+            $this->redirectWithMessage('/course/list', 'error=invalid_id');
+            return;
+        }
+
+        $courseModel = new Course();
+        $courseModel->update($courseId, $_POST);
+
+        $this->redirectWithMessage('/course/list', 'updated=1');
     }
 
     /**
@@ -114,11 +135,18 @@ class CourseController extends Controller
      * 
      * @return void
      */
-    public function delete()
+    public function delete(): void
     {
-        (new Course())->delete($_GET['id']);
+        $courseId = $_GET['id'] ?? null;
 
-        header("Location: /course/list?deleted=1");
-        exit;
+        if (!$courseId) {
+            $this->redirectWithMessage('/course/list', 'error=invalid_id');
+            return;
+        }
+
+        $courseModel = new Course();
+        $courseModel->delete($courseId);
+
+        $this->redirectWithMessage('/course/list', 'deleted=1');
     }
 }

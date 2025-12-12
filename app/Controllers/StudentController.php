@@ -116,26 +116,7 @@ class StudentController extends Controller
         }
 
         // Handle image upload
-        $photoName = null;
-        if (!empty($_FILES['photo']['name'])) {
-            $uploadDir = __DIR__ . '/../../public/uploads/students/';
-            // Create folder if not exists
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-            // Allowed types
-            $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-            if (!in_array(strtolower($ext), $allowed)) {
-                $this->view("admin/student/add", [
-                    "error" => "Only JPG, PNG, WEBP images allowed"
-                ], "admin");
-            }
-            // Generate unique file name
-            $photoName = uniqid('stu_') . '.' . $ext;
-            $targetPath = $uploadDir . $photoName;
-            move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath);
-        }
+        $photoName = $this->handleImageUpload($_FILES['photo'] ?? null);
 
         // Insert into students table
         $studentModel->create([
@@ -202,13 +183,24 @@ class StudentController extends Controller
      * 
      * @return void
      */
-    public function update()
+    public function update(): void
     {
+        $id = $_POST['id'] ?? null;
+
+        if (!$id) {
+            $this->redirectWithMessage('/student', 'error=Invalid student ID');
+            return;
+        }
+
         $studentModel = new Student();
         $userModel = new User();
 
-        $id = $_POST['id'];
         $student = $studentModel->findById($id);
+
+        if (!$student) {
+            $this->redirectWithMessage('/student', 'error=Student not found');
+            return;
+        }
 
         // Update user table
         $userModel->update($student['user_id'], [
@@ -216,22 +208,16 @@ class StudentController extends Controller
             "email" => $_POST['email']
         ]);
 
-        // Upload new photo if updated
-        $photoName = $student['photo'];
-        if (!empty($_FILES['photo']['name'])) {
-            $photoName = "stu_" . uniqid() . ".png";
-            move_uploaded_file($_FILES['photo']['tmp_name'], __DIR__ . "/../../public/uploads/students/" . $photoName);
-        }
+        // Handle image upload
+        $photoName = $this->handleImageUpload($_FILES['photo'] ?? null, $student['photo']);
 
         // Update student table
         $studentModel->update($id, [
             "course_id" => $_POST['course_id'],
-            "photo"  => $photoName
+            "photo" => $photoName
         ]);
 
-        header("Location: /student?updated=1");
-        exit;
-        exit;
+        $this->redirectWithMessage('/student', 'success=Student updated successfully!');
     }
 
     /**
@@ -241,19 +227,21 @@ class StudentController extends Controller
      */
     public function delete()
     {
-        $id = $_GET['id'];
+        $id = $_GET['id'] ?? null;
+
+        if (!$id) {
+            $this->redirectWithMessage('/student', 'error=Invalid student ID');
+            return;
+        }
 
         $studentModel = new Student();
         $student = $studentModel->findById($id);
 
         if ($student) {
             $userId = $student['user_id'];
-
-            // delete user → student auto deleted because of ON DELETE CASCADE
             (new User())->delete($userId);
         }
 
-        header("Location: /student?deleted=1");
-        exit;
+        $this->redirectWithMessage('/student', 'success=Student deleted successfully!');
     }
 }

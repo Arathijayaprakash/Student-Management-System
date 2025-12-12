@@ -35,7 +35,6 @@
             <p>No courses assigned to you yet.</p>
         <?php endif; ?>
 
-        <a href="/teacher/dashboard">Back to Dashboard</a>
     </div>
 </body>
 
