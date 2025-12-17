@@ -222,6 +222,7 @@ $router->post('/teacher/change-password', function () {
 | API ROUTES
 |-------------------------------------------------------------------------- 
 */
+$router->get('/api/students', [App\Controllers\StudentApiController::class, 'index']);
 $router->post('/api/students', [App\Controllers\StudentApiController::class, 'store']);
 $router->get('/api/students/{id}', [App\Controllers\StudentApiController::class, 'show']);
 $router->put('/api/students/{id}', [App\Controllers\StudentApiController::class, 'update']);

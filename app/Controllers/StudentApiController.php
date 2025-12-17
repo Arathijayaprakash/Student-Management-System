@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Models\User;
@@ -8,224 +10,250 @@ use App\Models\Student;
 class StudentApiController
 {
     /**
+     * Handle fetching all students.
+     *
+     * @return void
+     */
+    public function index(): void
+    {
+        $this->setJsonHeader();
+
+        $studentModel = new Student();
+        $students = $studentModel->getAll();
+
+        if (!empty($students)) {
+            $this->sendResponse(200, 'success', $students);
+        } else {
+            $this->sendResponse(404, 'error', 'No students found');
+        }
+    }
+
+    /**
      * Handle the creation of a new student.
-     * 
+     *
      * @return void
      */
     public function store(): void
     {
-        // Set the content type to JSON
-        header('Content-Type: application/json');
+        $this->setJsonHeader();
 
-        // Get the JSON input data
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
 
-        // Validate input data
-        if (!isset($data['name'], $data['email'], $data['password'], $data['course_id'])) {
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'error', 'message' => 'Invalid input. Required fields: name, email, password, course_id']);
+        if (!$this->validateInput($data, ['name', 'email', 'password', 'course_id'])) {
+            $this->sendResponse(400, 'error', 'Invalid input. Required fields: name, email, password, course_id');
             return;
         }
 
         $userModel = new User();
         $studentModel = new Student();
 
-        // Auto-generate hashed password
-        $plainPassword = $data['password'];
-        $hashedPassword = password_hash($plainPassword, PASSWORD_BCRYPT);
+        $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
 
         // Insert into users table
         $userId = $userModel->create([
-            "name" => $data['name'],
-            "email" => $data['email'],
-            "password" => $hashedPassword,
-            "role" => "student"
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $hashedPassword,
+            'role' => 'student',
         ]);
 
         if (!$userId) {
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['status' => 'error', 'message' => 'Failed to create user']);
+            $this->sendResponse(500, 'error', 'Failed to create user');
             return;
         }
 
-        // Handle image upload (optional)
+        // Handle optional photo
         $photoName = $data['photo'] ?? null;
 
         // Insert into students table
         $result = $studentModel->create([
-            "user_id" => $userId,
-            "course_id" => $data['course_id'],
-            "photo" => $photoName
+            'user_id' => $userId,
+            'course_id' => $data['course_id'],
+            'photo' => $photoName,
         ]);
 
         if ($result) {
-            http_response_code(201); // Created
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Student created successfully',
-                'data' => [
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'course_id' => $data['course_id'],
-                    'photo' => $photoName,
-                    'password' => $plainPassword // Return plain password for reference
-                ]
+            $this->sendResponse(201, 'success', [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'course_id' => $data['course_id'],
+                'photo' => $photoName,
             ]);
         } else {
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['status' => 'error', 'message' => 'Failed to create student']);
+            $this->sendResponse(500, 'error', 'Failed to create student');
         }
     }
 
     /**
      * Handle fetching a single student by ID.
-     * 
-     * @param int $id Student ID passed via the URL.
+     *
+     * @param int $id
      * @return void
      */
     public function show(int $id): void
     {
-        // Set the content type to JSON
-        header('Content-Type: application/json');
+        $this->setJsonHeader();
 
-        // Validate the ID
         if ($id <= 0) {
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'error', 'message' => 'Invalid student ID']);
+            $this->sendResponse(400, 'error', 'Invalid student ID');
             return;
         }
 
         $studentModel = new Student();
-
-        // Fetch the student by ID
         $student = $studentModel->findById($id);
 
         if ($student) {
-            // Return the student data
-            http_response_code(200); // OK
-            echo json_encode([
-                'status' => 'success',
-                'data' => $student
-            ]);
+            $this->sendResponse(200, 'success', $student);
         } else {
-            // Student not found
-            http_response_code(404); // Not Found
-            echo json_encode(['status' => 'error', 'message' => 'Student not found']);
+            $this->sendResponse(404, 'error', 'Student not found');
         }
     }
 
     /**
      * Handle updating a student's information.
-     * 
-     * @param int $id Student ID passed via the URL.
+     *
+     * @param int $id
      * @return void
      */
     public function update(int $id): void
     {
-        // Set the content type to JSON
-        header('Content-Type: application/json');
+        $this->setJsonHeader();
 
-        // Get the JSON input data
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
 
-        // Validate the ID
         if ($id <= 0) {
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'error', 'message' => 'Invalid student ID']);
+            $this->sendResponse(400, 'error', 'Invalid student ID');
             return;
         }
 
-        // Validate input data
-        if (!isset($data['name'], $data['email'], $data['course_id'])) {
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'error', 'message' => 'Invalid input. Required fields: name, email, course_id']);
+        if (!$this->validateInput($data, ['name', 'email', 'course_id'])) {
+            $this->sendResponse(400, 'error', 'Invalid input. Required fields: name, email, course_id');
             return;
         }
+
         $studentModel = new Student();
         $userModel = new User();
 
-        // Fetch the student by ID
         $student = $studentModel->findById($id);
 
         if (!$student) {
-            // Student not found
-            http_response_code(404); // Not Found
-            echo json_encode(['status' => 'error', 'message' => 'Student not found']);
+            $this->sendResponse(404, 'error', 'Student not found');
+            return;
         }
-        // Update the user table
+
+        // Update user table
         $userUpdateResult = $userModel->update($student['user_id'], [
-            "name" => $data['name'],
-            "email" => $data['email']
+            'name' => $data['name'],
+            'email' => $data['email'],
         ]);
 
         if (!$userUpdateResult) {
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['status' => 'error', 'message' => 'Failed to update user information']);
+            $this->sendResponse(500, 'error', 'Failed to update user information');
             return;
         }
-        // Handle image upload (optional)
+
+        // Handle optional photo
         $photoName = $data['photo'] ?? $student['photo'];
 
-        // Update the student table
+        // Update student table
         $studentUpdateResult = $studentModel->update($id, [
-            "course_id" => $data['course_id'],
-            "photo" => $photoName
+            'course_id' => $data['course_id'],
+            'photo' => $photoName,
         ]);
 
         if ($studentUpdateResult) {
-            http_response_code(200); // OK
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Student updated successfully',
-                'data' => [
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'course_id' => $data['course_id'],
-                    'photo' => $photoName
-                ]
+            $this->sendResponse(200, 'success', [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'course_id' => $data['course_id'],
+                'photo' => $photoName,
             ]);
         } else {
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['status' => 'error', 'message' => 'Failed to update student information']);
+            $this->sendResponse(500, 'error', 'Failed to update student information');
         }
     }
 
     /**
      * Handle deleting a student by ID.
-     * 
-     * @param int $id Student ID passed via the URL.
+     *
+     * @param int $id
      * @return void
      */
     public function delete(int $id): void
     {
-        // Set the content type to JSON
-        header('Content-Type: application/json');
+        $this->setJsonHeader();
 
-        // Validate the ID
         if ($id <= 0) {
-            http_response_code(400); // Bad Request
-            echo json_encode(['status' => 'error', 'message' => 'Invalid student ID']);
+            $this->sendResponse(400, 'error', 'Invalid student ID');
             return;
         }
+
         $studentModel = new Student();
         $student = $studentModel->findById($id);
 
         if (!$student) {
-            // Student not found
-            http_response_code(404); // Not Found
-            echo json_encode(['status' => 'error', 'message' => 'Student not found']);
+            $this->sendResponse(404, 'error', 'Student not found');
             return;
         }
+
         $userId = $student['user_id'];
-        // Delete the student record
-        $studentDeleted =  (new User())->delete($userId);
+        $studentDeleted = (new User())->delete($userId);
 
         if ($studentDeleted) {
-            http_response_code(200); // OK
-            echo json_encode(['status' => 'success', 'message' => 'Student deleted successfully']);
+            $this->sendResponse(200, 'success', 'Student deleted successfully');
         } else {
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['status' => 'error', 'message' => 'Failed to delete associated user']);
+            $this->sendResponse(500, 'error', 'Failed to delete associated user');
         }
+    }
+
+    /**
+     * Set the content type to JSON.
+     *
+     * @return void
+     */
+    private function setJsonHeader(): void
+    {
+        header('Content-Type: application/json');
+    }
+
+    /**
+     * Get JSON input data.
+     *
+     * @return array
+     */
+    private function getJsonInput(): array
+    {
+        return json_decode(file_get_contents('php://input'), true) ?? [];
+    }
+
+    /**
+     * Validate input data for required fields.
+     *
+     * @param array $data
+     * @param array $requiredFields
+     * @return bool
+     */
+    private function validateInput(array $data, array $requiredFields): bool
+    {
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Send a JSON response.
+     *
+     * @param int $statusCode
+     * @param string $status
+     * @param mixed $message
+     * @return void
+     */
+    private function sendResponse(int $statusCode, string $status, $message): void
+    {
+        http_response_code($statusCode);
+        echo json_encode(['status' => $status, 'message' => $message]);
     }
 }
