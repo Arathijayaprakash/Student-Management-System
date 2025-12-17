@@ -216,5 +216,15 @@ $router->post('/teacher/change-password', function () {
     AuthMiddleware::checkRole(['teacher']);
     (new TeacherController())->changePassword();
 });
+
+/*
+|-------------------------------------------------------------------------- 
+| API ROUTES
+|-------------------------------------------------------------------------- 
+*/
+$router->post('/api/students', [App\Controllers\StudentApiController::class, 'store']);
+$router->get('/api/students/{id}', [App\Controllers\StudentApiController::class, 'show']);
+$router->put('/api/students/{id}', [App\Controllers\StudentApiController::class, 'update']);
+$router->delete('/api/students/{id}', [App\Controllers\StudentApiController::class, 'delete']);
 // Resolve the current request
 $router->resolve();
